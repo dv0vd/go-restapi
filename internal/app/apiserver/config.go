@@ -6,12 +6,14 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/joho/godotenv"
+	"gitlab.qsoft.ru/grade/v.davydov_first_rest_api/internal/app/store"
 )
 
 type Config struct {
 	AppUrl      string `toml:"app_url"`
 	AppPort     string `toml:"app_port"`
 	AppLogLevel string `toml:"app_log_level"`
+	Store       *store.Config
 }
 
 func NewConfig() (*Config, error) {
@@ -39,6 +41,11 @@ func NewConfig() (*Config, error) {
 		if appLogLevel = strings.ReplaceAll(os.Getenv("APP_LOG_LEVEL"), " ", ""); appLogLevel != "" {
 			config.AppLogLevel = appLogLevel
 		}
+	}
+
+	config.Store, err = store.NewConfig()
+	if err != nil {
+		return nil, err
 	}
 
 	return &config, nil
