@@ -9,3 +9,4 @@ db_user = "postgres"
 db_password = "postgres"
 db_ssl_mode ="require"
 
+session_key="a2CjD2P4Ko6QPy4zQZ8WTA9sydux9FhzsEezA2kQ6CuQUZMLpjtRz8wtibn7QxZ3TLe7jeFzEaH23ttnBdGjhH4RPEDQvfv8mMXMU27wQy6Rt9iNjtj48UKknpWt6Q4x"

@@ -18,6 +18,7 @@ type Config struct {
 	DBUser      string `toml:"db_user"`
 	DBPassword  string `toml:"db_password"`
 	DBSSLMode   string `toml:"db_ssl_mode"`
+	SessionKey  string `toml:"session_key"`
 }
 
 func NewConfig() (*Config, error) {
@@ -38,6 +39,7 @@ func NewConfig() (*Config, error) {
 		dbUser      string
 		dbPassword  string
 		dbSSLMode   string
+		sessionKey  string
 	)
 	if err := godotenv.Load(); err == nil {
 		if appUrl = strings.ReplaceAll(os.Getenv("APP_URL"), " ", ""); appUrl != "" {
@@ -74,6 +76,10 @@ func NewConfig() (*Config, error) {
 
 		if dbSSLMode = strings.ReplaceAll(os.Getenv("DB_SSL_MODE"), " ", ""); dbSSLMode != "" {
 			config.DBSSLMode = dbSSLMode
+		}
+
+		if sessionKey = strings.ReplaceAll(os.Getenv("SESSION_KEY"), " ", ""); sessionKey != "" {
+			config.SessionKey = sessionKey
 		}
 	}
 

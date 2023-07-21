@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/gorilla/sessions"
 	"gitlab.qsoft.ru/grade/v.davydov_first_rest_api/internal/app/store/sqlstore"
 )
 
@@ -23,8 +24,8 @@ func Start(config *Config) error {
 	defer db.Close()
 
 	store := sqlstore.New(db)
-
-	s := newServer(store)
+	sessionStore := sessions.NewCookieStore([]byte(config.SessionKey))
+	s := newServer(store, sessionStore)
 
 	return http.ListenAndServe(config.AppUrl+":"+config.AppPort, s)
 }
