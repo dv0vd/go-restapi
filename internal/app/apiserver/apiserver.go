@@ -1,73 +1,59 @@
 package apiserver
 
 import (
-	"io"
+	"database/sql"
 	"net/http"
 
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
-	"gitlab.qsoft.ru/grade/v.davydov_first_rest_api/internal/app/store"
+	"gitlab.qsoft.ru/grade/v.davydov_first_rest_api/internal/app/store/sqlstore"
 )
 
-type APIServer struct {
-	config *Config
-	logger *logrus.Logger
-	router *mux.Router
-	store  *store.Store
-}
-
-func New(config *Config) *APIServer {
-	return &APIServer{
-		config: config,
-		logger: logrus.New(),
-		router: mux.NewRouter(),
-	}
-}
-
-func (s *APIServer) Start() error {
-	if err := s.configureLogger(); err != nil {
-		return err
-	}
-
-	s.configureRouter()
-
-	if err := s.configureStore(); err != nil {
-		return err
-	}
-
-	s.logger.Info("Starting api server")
-
-	return http.ListenAndServe(s.config.AppUrl+":"+s.config.AppPort, s.router)
-}
-
-func (s *APIServer) configureLogger() error {
-	level, err := logrus.ParseLevel(s.config.AppLogLevel)
+func Start(config *Config) error {
+	db, err := newDB(
+		config.DBHost,
+		config.DBPort,
+		config.DBDatabase,
+		config.DBUser,
+		config.DBPassword,
+		config.DBSSLMode,
+	)
 	if err != nil {
 		return err
 	}
 
-	s.logger.SetLevel(level)
+	defer db.Close()
 
-	return nil
+	store := sqlstore.New(db)
+
+	s := newServer(store)
+
+	return http.ListenAndServe(config.AppUrl+":"+config.AppPort, s)
 }
 
-func (s *APIServer) configureRouter() {
-	s.router.HandleFunc("/hello", s.handleHello())
-}
+func newDB(
+	dbHost string,
+	dbPort string,
+	dbDatabase string,
+	dbUser string,
+	dbPassword string,
+	dbSSLMode string,
+) (*sql.DB, error) {
+	db, err := sql.Open(
+		"postgres",
+		"host="+dbHost+
+			" port="+dbPort+
+			" dbname="+dbDatabase+
+			" user="+dbUser+
+			" password="+dbPassword+
+			" sslmode="+dbSSLMode,
+	)
 
-func (s *APIServer) configureStore() error {
-	st := store.New(s.config.Store)
-	if err := st.Open(); err != nil {
-		return err
+	if err != nil {
+		return nil, err
 	}
 
-	s.store = st
-
-	return nil
-}
-
-func (s *APIServer) handleHello() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "Hello")
+	if err := db.Ping(); err != nil {
+		return nil, err
 	}
+
+	return db, nil
 }

@@ -1,4 +1,4 @@
-package store_test
+package sqlstore_test
 
 import (
 	"os"
@@ -18,7 +18,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	if err := godotenv.Load("../../../.env"); err == nil {
+	if err := godotenv.Load("../../../../.env"); err == nil {
 		if dbHost = strings.ReplaceAll(os.Getenv("TEST_DB_HOST"), " ", ""); dbHost == "" {
 			dbHost = "localhost"
 		}

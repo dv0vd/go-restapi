@@ -6,14 +6,18 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/joho/godotenv"
-	"gitlab.qsoft.ru/grade/v.davydov_first_rest_api/internal/app/store"
 )
 
 type Config struct {
 	AppUrl      string `toml:"app_url"`
 	AppPort     string `toml:"app_port"`
 	AppLogLevel string `toml:"app_log_level"`
-	Store       *store.Config
+	DBHost      string `toml:"db_host"`
+	DBPort      string `toml:"db_port"`
+	DBDatabase  string `toml:"db_database"`
+	DBUser      string `toml:"db_user"`
+	DBPassword  string `toml:"db_password"`
+	DBSSLMode   string `toml:"db_ssl_mode"`
 }
 
 func NewConfig() (*Config, error) {
@@ -28,6 +32,12 @@ func NewConfig() (*Config, error) {
 		appUrl      string
 		appPort     string
 		appLogLevel string
+		dbHost      string
+		dbPort      string
+		dbDatabase  string
+		dbUser      string
+		dbPassword  string
+		dbSSLMode   string
 	)
 	if err := godotenv.Load(); err == nil {
 		if appUrl = strings.ReplaceAll(os.Getenv("APP_URL"), " ", ""); appUrl != "" {
@@ -41,11 +51,30 @@ func NewConfig() (*Config, error) {
 		if appLogLevel = strings.ReplaceAll(os.Getenv("APP_LOG_LEVEL"), " ", ""); appLogLevel != "" {
 			config.AppLogLevel = appLogLevel
 		}
-	}
 
-	config.Store, err = store.NewConfig()
-	if err != nil {
-		return nil, err
+		if dbHost = strings.ReplaceAll(os.Getenv("DB_HOST"), " ", ""); dbHost != "" {
+			config.DBHost = dbHost
+		}
+
+		if dbPort = strings.ReplaceAll(os.Getenv("DB_PORT"), " ", ""); dbPort != "" {
+			config.DBPort = dbPort
+		}
+
+		if dbDatabase = strings.ReplaceAll(os.Getenv("DB_DATABASE"), " ", ""); dbDatabase != "" {
+			config.DBDatabase = dbDatabase
+		}
+
+		if dbUser = strings.ReplaceAll(os.Getenv("DB_USERNAME"), " ", ""); dbUser != "" {
+			config.DBUser = dbUser
+		}
+
+		if dbPassword = strings.ReplaceAll(os.Getenv("DB_PASSWORD"), " ", ""); dbPassword != "" {
+			config.DBPassword = dbPassword
+		}
+
+		if dbSSLMode = strings.ReplaceAll(os.Getenv("DB_SSL_MODE"), " ", ""); dbSSLMode != "" {
+			config.DBSSLMode = dbSSLMode
+		}
 	}
 
 	return &config, nil
